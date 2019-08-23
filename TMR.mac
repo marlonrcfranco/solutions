@@ -2,7 +2,7 @@ TMR(globalName,mostrarChaves,mostrarDados,mostrarNiveis,amount)	;	MR - 15/08/201
 	;
 	;**********************************************************************
 	;         .:: IMPRIME GLOBAL EM FORMA DE ÁRVORE (TreeView) ::.
-	;              @MarlonFranco github.com/marlonrcfranco/solutions/
+	;              @MarlonFranco
 	; do ^TMR(globalName,mostrarChaves,mostrarDados,mostrarNiveis,amount)
 	; 
 	; ╔════════════════╦═══════════════════════════════════╦═══════════╗
@@ -97,7 +97,9 @@ TMR(globalName,mostrarChaves,mostrarDados,mostrarNiveis,amount)	;	MR - 15/08/201
 	;---------------------
 	; First node
 	write !,globalName," ",$select(mostrarNiveis:"<"_(levelFilter)_">",1:"")
-	do:level>=levelFilter PrintLine(mostrarNiveis,mostrarChaves,mostrarDados,node,indent,end,level,value,completeKey,actualKey)
+	if (level>=levelFilter) do
+	. do:('$$ParentNodeExists(node)) PrintMissingNodes(mostrarChaves,mostrarDados,mostrarNiveis,amount,node,level,level0,value,completeKey,actualKey,.indent,hasNext,end,end0)
+	. do PrintLine(mostrarNiveis,mostrarChaves,mostrarDados,node,indent,end,level,value,completeKey,actualKey)
 	;
 	;---------------------
 	; Cycle through nodes
