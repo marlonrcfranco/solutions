@@ -108,11 +108,10 @@ TMR(globalName,mostrarChaves,mostrarDados,mostrarNiveis,amount)	;	MR - 15/08/201
 	set globalNotFound=($data(@globalName)=0)
 	;
 	write:globalNotFound !,
-	"╔════════════════════════════════════════════════════════════════╗",!,
+	"══════════════════════════════════════════════════════════════════",!,
 	" ERRO: Nao foi possivel localizar a global """_globalName,"""",!,
-	"  Dica: coloque o nome da global entre aspas. ",!,
-	"     Ex: ""^FTCL(50,1)""",!,
-	"╚════════════════════════════════════════════════════════════════╝",!
+	"  Dica: coloque o nome da global entre aspas. Ex: ""^FTCL(50,1)""",!,
+	"══════════════════════════════════════════════════════════════════",!
 	quit:globalNotFound
 	kill globalNotFound
 	;
@@ -131,10 +130,7 @@ TMR(globalName,mostrarChaves,mostrarDados,mostrarNiveis,amount)	;	MR - 15/08/201
 	set node=$query(@globalName)
 	set level=$length(node,",")-1
 	set level0=level
-	if ($length($$RemoveSpecialCharacter(globalName),"(")=1) do
-	. set levelFilter=0
-	else  do
-	. set levelFilter=$length($$RemoveSpecialCharacter(globalName),",")
+	set levelFilter=$length(globalName,",")-1
 	set value=$get(@node)
 	set completeKey=$piece($piece(node,"(",2),")",1)
 	set completeKey=$$RemoveSpecialCharacter(completeKey,",")
@@ -154,10 +150,10 @@ TMR(globalName,mostrarChaves,mostrarDados,mostrarNiveis,amount)	;	MR - 15/08/201
 	;
 	;---------------------
 	; Cycle through nodes
-	for  set node=$query(@node) quit:(node="")!(count=amount)!(level+1<=levelFilter)  do
+	for  set node=$query(@node) quit:(node="")!(count=amount)!((level<=levelFilter)&&(levelFilter'=0))  do
 	. ;
-	. set level=$length($$RemoveSpecialCharacter(node),",")-1
-	. quit:(level+1<=levelFilter)
+	. set level=$length(node,",")-1
+	. quit:(level<=levelFilter)&&(levelFilter'=0)
 	. set value=$get(@node)
 	. set completeKey=$piece($piece(node,"(",2),")",1)
 	. set completeKey=$$RemoveSpecialCharacter(completeKey,",")
