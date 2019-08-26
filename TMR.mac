@@ -1,30 +1,31 @@
 TMR(globalName,mostrarChaves,mostrarDados,mostrarNiveis,amount)	;	MR - 15/08/2019 - TESTES EM GERAL
 	;
 	;**********************************************************************
-	;         .:: IMPRIME GLOBAL EM FORMA DE ÁRVORE (TreeView) ::.
+	;                   .:: Prints GLOBAL in TreeView ::.
 	;              @MarlonFranco
-	; do ^TMR(globalName,mostrarChaves,mostrarDados,mostrarNiveis,amount)
+	; do ^TMR(globalName,showKeys,showData,showLevels,amount)
 	; 
 	; ╔════════════════╦═══════════════════════════════════╦═══════════╗
-	; ║ Parâmetro      ║ Explicação                        ║ Default   ║
+	; ║ Parameter      ║ Description                       ║ Default   ║
 	; ╠════════════════╩═══════════════════════════════════╩═══════════╣
-	; ║ globalName     │ Nome da Global entre aspas.       │           ║
+	; ║ globalName     │ Global name in double quotes ("). │           ║
 	; ║                │  Exemplo: "^FTCL(50)"             │           ║
 	; ║────────────────┼───────────────────────────────────┼───────────║
-	; ║ mostrarChaves  │ Mostra em cada nodo a chave.      │ 1         ║
-	; ║                │  0 ─ Não mostrar chave            │           ║
-	; ║                │  1 ─ Mostrar chave completa       │           ║
-	; ║                │  2 ─ Mostrar chave reduzida       │           ║
+	; ║ showKeys       │ Show the key in each node.        │ 1         ║
+	; ║                │  0 ─ Don't show the key           │           ║
+	; ║                │  1 ─ Show complete key            │           ║
+	; ║                │  2 ─ Show reduced key             │           ║
 	; ║────────────────┼───────────────────────────────────┼───────────║
-	; ║ mostrarDados   │ Mostra o conteúdo do nodo.        │ 0         ║
-	; ║                │  0 ─ Não mostrar dados            │           ║
-	; ║                │  1 ─ Mostrar dados                │           ║
+	; ║ showData       │ Show the content of the node.     │ 0         ║
+	; ║                │  0 ─ Don't show the content       │           ║
+	; ║                │  1 ─ Show the content             │           ║
 	; ║────────────────┼───────────────────────────────────┼───────────║
-	; ║ mostrarNiveis  │ Mostra o nível do nodo na árvore  │ 0         ║
+	; ║ showLevels     │ Show the level of the node in the │ 0         ║
+	; ║                │ tree                              │           ║
 	; ║────────────────┼───────────────────────────────────┼───────────║
-	; ║ amount         │ Mostra apenas os primeiros "amout"│ -1        ║
-	; ║                │ nodos da árvore.                  │           ║
-	; ║                │  amount < 0 : Mostra tudo         │           ║
+	; ║ amount         │ Show only the firts "amout" nodes.│ -1        ║
+	; ║                │  amount < 0 : Show all            │           ║
+	; ║                │                                   │           ║
 	; ╚════════════════════════════════════════════════════════════════╝
 	;
 	; MR - 22/08/2019
@@ -34,30 +35,31 @@ TMR(globalName,mostrarChaves,mostrarDados,mostrarNiveis,amount)	;	MR - 15/08/201
 	new globalNoTFound
 	;
 	write:($get(globalName)="")!($get(globalName)="help") !,
-	"      .:: IMPRIME GLOBAL EM FORMA DE ÁRVORE (TreeView) ::.",!,
-	"          @MarlonFranco",!,
-	" do ^TMR(globalName,mostrarChaves,mostrarDados,mostrarNiveis,amount)",!,
-	"╔════════════════╦═══════════════════════════════════╦═══════════╗",!,
-	"║ Parâmetro      ║ Explicação                        ║ Default   ║",!,
-	"╠════════════════╩═══════════════════════════════════╩═══════════╣",!,
-	"║ globalName     │ Nome da Global entre aspas.       │           ║",!,
-	"║                │  Exemplo: ""^FTCL(50)""             │           ║",!,
-	"║────────────────┼───────────────────────────────────┼───────────║",!,
-	"║ mostrarChaves  │ Mostra em cada nodo a chave.      │ 2         ║",!,
-	"║                │  0 ─ Não mostrar chave            │           ║",!,
-	"║                │  1 ─ Mostrar chave completa       │           ║",!,
-	"║                │  2 ─ Mostrar chave reduzida       │           ║",!,
-	"║────────────────┼───────────────────────────────────┼───────────║",!,
-	"║ mostrarDados   │ Mostra o conteúdo do nodo.        │ 0         ║",!,
-	"║                │  0 ─ Não mostrar dados            │           ║",!,
-	"║                │  1 ─ Mostrar dados                │           ║",!,
-	"║────────────────┼───────────────────────────────────┼───────────║",!,
-	"║ mostrarNiveis  │ Mostra o nível do nodo na árvore  │ 0         ║",!,
-	"║────────────────┼───────────────────────────────────┼───────────║",!,
-	"║ amount         │ Mostra apenas os primeiros ""amout""│ -1        ║",!,
-	"║                │ nodos da árvore.                  │           ║",!,
-	"║                │  amount < 0 : Mostra tudo         │           ║",!,
-	"╚════════════════════════════════════════════════════════════════╝",!
+	"                   .:: Prints GLOBAL in TreeView ::.",!,
+	"              @MarlonFranco",!,
+	" do ^TMR(globalName,showKeys,showData,showLevels,amount)",!!,
+	" ╔════════════════╦═══════════════════════════════════╦═══════════╗",!,
+	" ║ Parameter      ║ Description                       ║ Default   ║",!,
+	" ╠════════════════╩═══════════════════════════════════╩═══════════╣",!,
+	" ║ globalName     │ Global name in double quotes (""). │           ║",!,
+	" ║                │  Exemplo: ""^FTCL(50)""             │           ║",!,
+	" ║────────────────┼───────────────────────────────────┼───────────║",!,
+	" ║ showKeys       │ Show the key in each node.        │ 1         ║",!,
+	" ║                │  0 ─ Don't show the key           │           ║",!,
+	" ║                │  1 ─ Show complete key            │           ║",!,
+	" ║                │  2 ─ Show reduced key             │           ║",!,
+	" ║────────────────┼───────────────────────────────────┼───────────║",!,
+	" ║ showData       │ Show the content of the node.     │ 0         ║",!,
+	" ║                │  0 ─ Don't show the content       │           ║",!,
+	" ║                │  1 ─ Show the content             │           ║",!,
+	" ║────────────────┼───────────────────────────────────┼───────────║",!,
+	" ║ showLevels     │ Show the level of the node in the │ 0         ║",!,
+	" ║                │ tree                              │           ║",!,
+	" ║────────────────┼───────────────────────────────────┼───────────║",!,
+	" ║ amount         │ Show only the firts ""amout"" nodes.│ -1        ║",!,
+	" ║                │  amount < 0 : Show all            │           ║",!,
+	" ║                │                                   │           ║",!,
+	" ╚════════════════════════════════════════════════════════════════╝"
 	;
 	quit:($get(globalName)="")!($get(globalName)="help")
 	;
@@ -130,8 +132,8 @@ TMR(globalName,mostrarChaves,mostrarDados,mostrarNiveis,amount)	;	MR - 15/08/201
 	. ;---------------------
 	. ; Print line
 	. ; 
-	. do:('$$ParentNodeExists(node)) PrintMissingNodes(mostrarChaves,mostrarDados,mostrarNiveis,amount,node,level,level0,value,$$RestoreSpecialCharacter(completeKey,","),actualKey,.indent,hasNext,end,end0)
-	. do PrintLine(mostrarNiveis,mostrarChaves,mostrarDados,node,indent,end,level,value,$$RestoreSpecialCharacter(completeKey,","),actualKey)
+	. do:('$$ParentNodeExists(node)) PrintMissingNodes(mostrarChaves,mostrarDados,mostrarNiveis,amount,node,level,level0,value,completeKey,actualKey,.indent,hasNext,end,end0)
+	. do PrintLine(mostrarNiveis,mostrarChaves,mostrarDados,node,indent,end,level,value,completeKey,actualKey)
 	. ;
 	. set count=count+1
 	. ;
@@ -162,7 +164,7 @@ PrintLine(mostrarNiveis,mostrarChaves,mostrarDados,node,indent,end,level,value,c
 	write end
 	write $$Repeat(1,"─")
 	write ball_$select(mostrarNiveis:"<"_(level+1)_">",1:"")
-	write $case(mostrarChaves,1:"("_completeKey_") ",2:"("_actualKey_") ",:"")
+	write $case(mostrarChaves,1:"("_$$RestoreSpecialCharacter(completeKey)_") ",2:"("_$$RestoreSpecialCharacter(actualKey)_") ",:"")
 	write:mostrarDados $extract(value,1,55)_$select($length(value)>56:"...",1:"")
 	;
 	quit
@@ -306,7 +308,7 @@ Distance(n1,n2)	;
 	;*************************************************
 	;
 	; Replace all the commas (or special character) that are not from the key,
-	; inside strings between ""
+	; inside strings (i.e. between quotes)
 	; 
 	; Example: 
 	; 
@@ -315,9 +317,9 @@ Distance(n1,n2)	;
 	; key=   1,"Brasil","SP","Iguape","Rua do Centro,720",2,"End",7
 	; 
 	; In this example, the comma (,) is used to separate the values in the key, 
-	; but is also present inside onde of the values (the value 5).
+	; but it is also present inside one of the values (the value 5).
 	; 
-	; If we attempt to do a $piece to separate the values using comma, we get:
+	; If we attempt to do a $piece to separate the values using comma as delimiter, we get:
 	; 
 	; $piece(key,",",1): 1
 	; $piece(key,",",2): "Brasil"
@@ -341,29 +343,25 @@ Distance(n1,n2)	;
 	; 
 RemoveSpecialCharacter(key,specialChar)
 	;
-	new i,delim,key2,word
-	;
 	set:($data(specialChar)=0) specialChar=","
 	;
-	quit:$length(key,"""")<=1 key
+	new ch,x,n,quotesOpen
 	;
-	set delim="|$%DeLimiTer%$|"
-	set key2=""
+	set ch=""
+	set quotesOpen=0
 	;
-	set key=$replace(key,""""_specialChar,""""_delim)
-	set key=$replace(key,specialChar_"""",delim_"""")
+	set n= $length(key)
 	;
-	;---------------------
-	; Replace all the commas (or special character) that are not from the key,
-	; inside strings between ""
-	for i=1:1:$length(key,delim) do
-	. set word=$piece(key,delim,i)
-	. set word=$replace(word,specialChar,"|$%CommA%$|")
-	. set key2=key2_$select(key2'="":specialChar,1:"")_word
+	for x=1:1:n do
+	. set ch=$extract(key,x)
+	. ;
+	. if (ch="""") do
+	. . set quotesOpen='quotesOpen
+	. ;
+	. if (ch=specialChar)&&(quotesOpen) do 
+	. . set $extract(key,x)="•"
 	;
-	set key=key2
-	;
-	quit key2
+	quit key
 	;
 	;
 	;*************************************************
@@ -372,26 +370,12 @@ RemoveSpecialCharacter(key,specialChar)
 	; MR - 26/08/2019
 	;*************************************************
 	;
-	; Replace all the "|$%CommA%$|" for specialChar
+	; Replace all the "•" for specialChar
 RestoreSpecialCharacter(string,specialChar)
 	;
 	set:($data(specialChar)=0) specialChar=","
 	;
-	quit $replace(string,"|$%CommA%$|",specialChar)
-	;
-	;
-Teste	;
-	set key="1,""Brasil"",""SP"",""Iguape"",""Rua do Centro,720"",2,""End"",7"
-	;
-	set key2=$$RemoveSpecialCharacter(key,",")
-	;
-	write !,"key2= ",key2,!!
-	;
-	for i=1:1:$length(key2,",") do
-	. write $$RestoreSpecialCharacter($piece(key2,",",i)),!
-	;
-	;
-	quit
+	quit $replace(string,"•",specialChar)
 	;
 	;
 	;
