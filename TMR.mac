@@ -69,6 +69,7 @@ TMR(globalName,mostrarChaves,mostrarDados,mostrarNiveis,amount)	;	MR - 15/08/201
 	"  Dica: coloque o nome da global entre aspas. Ex: ""^FTCL(50,1)""",!,
 	"══════════════════════════════════════════════════════════════════",!
 	quit:globalNotFound
+	kill globalNotFound
 	;
 	;---------------------
 	; Set parameters to default value if not specified
@@ -88,7 +89,9 @@ TMR(globalName,mostrarChaves,mostrarDados,mostrarNiveis,amount)	;	MR - 15/08/201
 	set levelFilter=$length(globalName,",")-1
 	set value=$get(@node)
 	set completeKey=$piece($piece(node,"(",2),")",1)
+	set completeKey=$$RemoveSpecialCharacter(completeKey,",")
 	set actualKey=$piece(completeKey,",",*)
+	set actualKey=$$RestoreSpecialCharacter(actualKey,",")
 	set indent=""
 	set hasNext=($order(@node)'="")
 	set end=$select(hasNext:"├",1:"└")
@@ -109,7 +112,10 @@ TMR(globalName,mostrarChaves,mostrarDados,mostrarNiveis,amount)	;	MR - 15/08/201
 	. quit:(level<=levelFilter)&&(levelFilter'=0)
 	. set value=$get(@node)
 	. set completeKey=$piece($piece(node,"(",2),")",1)
+	. set completeKey=$$RemoveSpecialCharacter(completeKey,",")
+	. ;
 	. set actualKey=$piece(completeKey,",",*)
+	. set actualKey=$$RestoreSpecialCharacter(actualKey,",")
 	. ;
 	. set hasNext=($order(@node)'="")
 	. set end=$select(hasNext:"├",1:"└")
@@ -222,12 +228,14 @@ ParentNodeExists(node)	;
 	set delim=","
 	;
 	set completeKey=$piece($piece(node,"(",2),")",1)
-	set key=$piece(completeKey,",",*)
+	set completeKey=$$RemoveSpecialCharacter(completeKey,delim)
 	;
    	set n=$length(completeKey,delim)
 	;
 	set:(n-1)>0 key=$piece(completeKey,delim,1,n-1)
 	set:(n-1)<=0 key=0
+   	;
+   	set key=$$RestoreSpecialCharacter(key,delim)
    	;
    	set:key>0 parentNode=$piece(node,"(",1)_"("_key_")"
    	set:key<=0 parentNode=$piece(node,"(",1)
@@ -291,5 +299,83 @@ Distance(n1,n2)	;
 	;
 	quit ($ZSQR($ZPOWER((n1-n2),2)))
 	;
+	;
+	;*************************************************
+	; RemoveSpecialCharacter
+	; 
+	; MR - 26/08/2019
+	;*************************************************
+	;
+	; Replace all the commas (or special character) that are not from the key,
+	; inside strings between ""
+	; 
+	; Example: 
+	; 
+	;        1    2       3      4              5         6   7   8 
+	;       ├─┼────────┼────┼────────┼───────────────────┼─┼─────┼─┤
+	; key=   1,"Brasil","SP","Iguape","Rua do Centro,720",2,"End",7
+	; 
+	; In this example, the comma (,) is used to separate the values in the key, 
+	; but is also present inside onde of the values (the value 5).
+	; 
+	; If we attempt to do a $piece to separate the values using comma, we get:
+	; 
+	; $piece(key,",",1): 1
+	; $piece(key,",",2): "Brasil"
+	; $piece(key,",",3): "SP"
+	; $piece(key,",",4): "Iguape"
+	; $piece(key,",",5): "Rua Ana Candida Sandoval Trigo (INCORRECT)
+	; $piece(key,",",6): 720" (INCORRECT)
+	; $piece(key,",",7): 2
+	; $piece(key,",",8): "End"
+	; $piece(key,",",9): 7
+	; 
+	; -------
+	; Usage:
+	; 
+	; set key="1,""Brasil"",""SP"",""Iguape"",""Rua Ana Candida Sandoval Trigo,720"",2,""End"",7"
+	;
+	; set key2=$$RemoveSpecialCharacter(key,",")
+	;
+	;for i=1:1:$length(key2,",") do
+	;. write $$RestoreSpecialCharacter($piece(key2,",",i)),!
+	; 
+RemoveSpecialCharacter(key,specialChar)
+	;
+	new delim,key2,word
+	;
+	set:($data(specialChar)=0) specialChar=","
+	;
+	set delim="|$%DeLimiTer%$|"
+	set key2=""
+	;
+	set key=$replace(key,""""_specialChar,""""_delim)
+	set key=$replace(key,specialChar_"""",delim_"""")
+	;
+	;---------------------
+	; Replace all the commas (or special character) that are not from the key,
+	; inside strings between ""
+	for i=1:1:$length(key,delim) do
+	. set word=$piece(key,delim,i)
+	. set word=$replace(word,specialChar,"|$%CommA%$|")
+	. set key2=key2_$select(key2'="":specialChar,1:"")_word
+	;
+	set key=key2
+	;
+	quit key2
+	;
+	;
+	;*************************************************
+	; RestoreSpecialCharacter
+	; 
+	; MR - 26/08/2019
+	;*************************************************
+	;
+	; Replace all the "|$%CommA%$|" for specialChar
+RestoreSpecialCharacter(string,specialChar)
+	;
+	set:($data(specialChar)=0) specialChar=","
+	;
+	quit $replace(string,"|$%CommA%$|",specialChar)
 	;
 	;
