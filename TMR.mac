@@ -130,8 +130,8 @@ TMR(globalName,mostrarChaves,mostrarDados,mostrarNiveis,amount)	;	MR - 15/08/201
 	. ;---------------------
 	. ; Print line
 	. ; 
-	. do:('$$ParentNodeExists(node)) PrintMissingNodes(mostrarChaves,mostrarDados,mostrarNiveis,amount,node,level,level0,value,completeKey,actualKey,.indent,hasNext,end,end0)
-	. do PrintLine(mostrarNiveis,mostrarChaves,mostrarDados,node,indent,end,level,value,completeKey,actualKey)
+	. do:('$$ParentNodeExists(node)) PrintMissingNodes(mostrarChaves,mostrarDados,mostrarNiveis,amount,node,level,level0,value,$$RestoreSpecialCharacter(completeKey,","),actualKey,.indent,hasNext,end,end0)
+	. do PrintLine(mostrarNiveis,mostrarChaves,mostrarDados,node,indent,end,level,value,$$RestoreSpecialCharacter(completeKey,","),actualKey)
 	. ;
 	. set count=count+1
 	. ;
@@ -178,6 +178,7 @@ PrintMissingNodes(mostrarChaves,mostrarDados,mostrarNiveis,distance,node,level,l
 	;
    	set delim=","
  	set indent=""
+ 	;
    	set n=$length(completeKey,delim)
   	;
   	for i=1:1:n do
@@ -235,9 +236,7 @@ ParentNodeExists(node)	;
 	set:(n-1)>0 key=$piece(completeKey,delim,1,n-1)
 	set:(n-1)<=0 key=0
    	;
-   	set key=$$RestoreSpecialCharacter(key,delim)
-   	;
-   	set:key>0 parentNode=$piece(node,"(",1)_"("_key_")"
+   	set:key>0 parentNode=$piece(node,"(",1)_"("_$$RestoreSpecialCharacter(key,delim)_")"
    	set:key<=0 parentNode=$piece(node,"(",1)
 	;
 	;w "*ck:(",completeKey,")*k:(",key,") "
@@ -324,7 +323,7 @@ Distance(n1,n2)	;
 	; $piece(key,",",2): "Brasil"
 	; $piece(key,",",3): "SP"
 	; $piece(key,",",4): "Iguape"
-	; $piece(key,",",5): "Rua Ana Candida Sandoval Trigo (INCORRECT)
+	; $piece(key,",",5): "Rua do Centro (INCORRECT)
 	; $piece(key,",",6): 720" (INCORRECT)
 	; $piece(key,",",7): 2
 	; $piece(key,",",8): "End"
@@ -333,7 +332,7 @@ Distance(n1,n2)	;
 	; -------
 	; Usage:
 	; 
-	; set key="1,""Brasil"",""SP"",""Iguape"",""Rua Ana Candida Sandoval Trigo,720"",2,""End"",7"
+	; set key="1,""Brasil"",""SP"",""Iguape"",""Rua do Centro,720"",2,""End"",7"
 	;
 	; set key2=$$RemoveSpecialCharacter(key,",")
 	;
@@ -342,9 +341,11 @@ Distance(n1,n2)	;
 	; 
 RemoveSpecialCharacter(key,specialChar)
 	;
-	new delim,key2,word
+	new i,delim,key2,word
 	;
 	set:($data(specialChar)=0) specialChar=","
+	;
+	quit:$length(key,"""")<=1 key
 	;
 	set delim="|$%DeLimiTer%$|"
 	set key2=""
@@ -377,5 +378,20 @@ RestoreSpecialCharacter(string,specialChar)
 	set:($data(specialChar)=0) specialChar=","
 	;
 	quit $replace(string,"|$%CommA%$|",specialChar)
+	;
+	;
+Teste	;
+	set key="1,""Brasil"",""SP"",""Iguape"",""Rua do Centro,720"",2,""End"",7"
+	;
+	set key2=$$RemoveSpecialCharacter(key,",")
+	;
+	write !,"key2= ",key2,!!
+	;
+	for i=1:1:$length(key2,",") do
+	. write $$RestoreSpecialCharacter($piece(key2,",",i)),!
+	;
+	;
+	quit
+	;
 	;
 	;
