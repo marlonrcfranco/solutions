@@ -1,4 +1,4 @@
-TMR(globalName,mostrarChaves,mostrarDados,mostrarNiveis,amount)	;	MR - 15/08/2019 - TESTES EM GERAL
+TMR(globalName,mostrarChaves,mostrarDados,mostrarNiveis,amount)	;	MR - 15/08/2019 - Prints Global in TreeView
 	;
 	;**********************************************************************
 	;                   .:: Prints GLOBAL in TreeView ::.
@@ -11,12 +11,12 @@ TMR(globalName,mostrarChaves,mostrarDados,mostrarNiveis,amount)	;	MR - 15/08/201
 	; ║ globalName     │ Global name in double quotes ("). │           ║
 	; ║                │  Exemplo: "^FTCL(50)"             │           ║
 	; ║────────────────┼───────────────────────────────────┼───────────║
-	; ║ showKeys       │ Show the key in each node.        │ 1         ║
+	; ║ showKeys       │ Show the key in each node.        │ 2         ║
 	; ║                │  0 ─ Don't show the key           │           ║
 	; ║                │  1 ─ Show complete key            │           ║
 	; ║                │  2 ─ Show reduced key             │           ║
 	; ║────────────────┼───────────────────────────────────┼───────────║
-	; ║ showData       │ Show the content of the node.     │ 0         ║
+	; ║ showData       │ Show the content of the node.     │ 1         ║
 	; ║                │  0 ─ Don't show the content       │           ║
 	; ║                │  1 ─ Show the content             │           ║
 	; ║────────────────┼───────────────────────────────────┼───────────║
@@ -74,7 +74,7 @@ TMR(globalName,mostrarChaves,mostrarDados,mostrarNiveis,amount)	;	MR - 15/08/201
 	; /*/
 	;**********************************************************************
 	;
-	new globalNotFound
+	new globalNotFound,screenWidth
 	;
 HELP	write:($get(globalName)="")!($get(globalName)="help") !,
 	" █▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█",!,
@@ -92,12 +92,12 @@ HELP	write:($get(globalName)="")!($get(globalName)="help") !,
 	" ║ globalName     │ Global name in double quotes (""). │           ║",!,
 	" ║                │  Exemplo: ""^FTCL(50)""             │           ║",!,
 	" ║────────────────┼───────────────────────────────────┼───────────║",!,
-	" ║ showKeys       │ Show the key in each node.        │ 1         ║",!,
+	" ║ showKeys       │ Show the key in each node.        │ 2         ║",!,
 	" ║                │  0 ─ Don't show the key           │           ║",!,
 	" ║                │  1 ─ Show complete key            │           ║",!,
 	" ║                │  2 ─ Show reduced key             │           ║",!,
 	" ║────────────────┼───────────────────────────────────┼───────────║",!,
-	" ║ showData       │ Show the content of the node.     │ 0         ║",!,
+	" ║ showData       │ Show the content of the node.     │ 1         ║",!,
 	" ║                │  0 ─ Don't show the content       │           ║",!,
 	" ║                │  1 ─ Show the content             │           ║",!,
 	" ║────────────────┼───────────────────────────────────┼───────────║",!,
@@ -109,6 +109,7 @@ HELP	write:($get(globalName)="")!($get(globalName)="help") !,
 	" ║                │                                   │           ║",!,
 	" ╚════════════════════════════════════════════════════════════════╝"
 	;
+	read !,"Screen width: ",screenWidth
 	;
 INI	read:($get(globalName)="")!($get(globalName)="help") !,"Global ^",globalName,!
 	;
@@ -130,7 +131,7 @@ INI	read:($get(globalName)="")!($get(globalName)="help") !,"Global ^",globalName
 	;---------------------
 	; Set parameters to default value if not specified
 	set:$get(mostrarChaves)="" mostrarChaves=2
-	set:$get(mostrarDados)="" mostrarDados=0
+	set:$get(mostrarDados)="" mostrarDados=1
 	set:$get(mostrarNiveis)="" mostrarNiveis=0
 	set:$get(amount)="" amount=-1
 	;
@@ -209,18 +210,22 @@ INI	read:($get(globalName)="")!($get(globalName)="help") !,"Global ^",globalName
 	;*************************************************
 PrintLine(mostrarNiveis,mostrarChaves,mostrarDados,node,indent,end,level,value,completeKey,actualKey,pointer)	;
 	;
-	new ball
+	new ball,line
+	;
+	set:($get(screenWidth)="") screenWidth=70
 	;
 	set:$get(pointer)="" pointer=0
 	;
 	set ball=$select(pointer:"×",1:"o")
 	;
-	write !," ",indent
-	write end
-	write $$Repeat(1,"─")
-	write ball_$select(mostrarNiveis:"<"_(level+1)_">",1:"")
-	write $case(mostrarChaves,1:"("_$$RestoreSpecialCharacter(completeKey)_") ",2:"("_$$RestoreSpecialCharacter(actualKey)_") ",:"")
-	write:mostrarDados $extract(value,1,55)_$select($length(value)>56:"...",1:"")
+	set line=" "_indent_end_$$Repeat(1,"─")_ball
+	set:mostrarNiveis line=line_"<"_(level+1)_">"
+	set:mostrarChaves line=line_"("_$$RestoreSpecialCharacter($case(mostrarChaves,1:completeKey,2:actualKey))_")"
+	set:mostrarDados line=line_value
+	;
+	set:($length(line)>=screenWidth) line=$extract(line,1,screenWidth)_$select($length(line)>screenWidth:"...",1:"")
+	;
+	write !,line
 	;
 	quit
 	;
@@ -295,9 +300,6 @@ ParentNodeExists(node)	;
    	;
    	set:key>0 parentNode=$piece(node,"(",1)_"("_$$RestoreSpecialCharacter(key,delim)_")"
    	set:key<=0 parentNode=$piece(node,"(",1)
-	;
-	;w "*ck:(",completeKey,")*k:(",key,") "
-	;w "parent: "_parentNode
 	;
 	quit (($data(@parentNode)'=10)&&($data(@parentNode)'=0))
 	;
