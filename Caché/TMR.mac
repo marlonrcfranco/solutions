@@ -2,7 +2,7 @@ TMR(globalName,mostrarChaves,mostrarDados,mostrarNiveis,amount)	;	MR - 15/08/201
 	;
 	;**********************************************************************
 	;                   .:: Prints GLOBAL in TreeView ::.
-	;              @MarlonFranco
+	;              @MarlonFranco github.com/marlonrcfranco/solutions
 	; do ^TMR(globalName,showKeys,showData,showLevels,amount)
 	; 
 	; ╔════════════════╦═══════════════════════════════════╦═══════════╗
@@ -77,9 +77,15 @@ TMR(globalName,mostrarChaves,mostrarDados,mostrarNiveis,amount)	;	MR - 15/08/201
 	new globalNotFound
 	;
 HELP	write:($get(globalName)="")!($get(globalName)="help") !,
-	"                   .:: Prints GLOBAL in TreeView ::.",!,
-	"              @MarlonFranco",!,
-	" do ^TMR(globalName,showKeys,showData,showLevels,amount)",!,
+	" █▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█",!,
+	" █ ╔═════╦═╗  ╔═╦═════╗                                           █",!,
+	" █ ╚═╗ ╔═╣  \/  ║ ╔═╗ ║   .:: Prints GLOBAL in TreeView ::.       █",!,
+	" █   ║ ║ ║ ║\/║ ║ ╚═╝ ║                                           █",!,
+	" █   ║ ║ ║ ║  ║ ║ ╔╗ ╔╝           @marlonrcfranco                 █",!,
+	" █   ║ ║ ║ ║  ║ ║ ║╚╗╚╗   github.com/marlonrcfranco/solutions     █",!,
+	" █   ╚═╝ ╚═╝  ╚═╩═╝ ╚═╝                                           █",!,
+	" █▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█",!,
+	"       do ^TMR(globalName,showKeys,showData,showLevels,amount)",!,
 	" ╔════════════════╦═══════════════════════════════════╦═══════════╗",!,
 	" ║ Parameter      ║ Description                       ║ Default   ║",!,
 	" ╠════════════════╩═══════════════════════════════════╩═══════════╣",!,
