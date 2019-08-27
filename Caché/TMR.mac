@@ -98,7 +98,7 @@ HELP	write:($get(globalName)="")!($get(globalName)="help") !,
 	" ╔════════════════╦═══════════════════════════════════╦═════════╗",!,
 	" ║ Parameter      ║ Description                       ║ Default ║",!,
 	" ╠════════════════╩═══════════════════════════════════╩═════════╣",!,
-	" ║ globalName     │ Global name in double quotes (""). │         ║",!,
+	" ║ globalName     │ Global name in double quotes (""). │         ║ ",!,
 	" ║                │  Exemplo: ""^FTCL(50)""             │         ║",!,
 	" ║────────────────┼───────────────────────────────────┼─────────║",!,
 	" ║ showKeys       │ Show the key in each node.        │ 2       ║ "_mostrarChaves_"",!,
@@ -115,8 +115,7 @@ HELP	write:($get(globalName)="")!($get(globalName)="help") !,
 	" ║────────────────┼───────────────────────────────────┼─────────║",!,
 	" ║ amount         │ Show only the firts ""amout"" nodes.│ -1      ║ "_amount_"",!,
 	" ║                │  amount < 0 : Show all            │         ║",!,
-	" ║                │                                   │         ║",!,
-	" ╚══════════════════════════════════════════════════════════════╝"
+	" ╚══════════════════════════════════════════════════════════════╝",!
 	;
 	read !,"Screen width: ",screenWidth
 	;
