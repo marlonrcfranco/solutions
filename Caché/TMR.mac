@@ -76,6 +76,15 @@ TMR(globalName,mostrarChaves,mostrarDados,mostrarNiveis,amount)	;	MR - 15/08/201
 	;
 	new globalNotFound,screenWidth
 	;
+	;---------------------
+	; Set parameters to default value if not specified
+	set:$get(mostrarChaves)="" mostrarChaves=2
+	set:$get(mostrarDados)="" mostrarDados=1
+	set:$get(mostrarNiveis)="" mostrarNiveis=0
+	set:$get(amount)="" amount=-1
+	;
+	set:$get(globalName)?.N amount=$get(globalName),globalName=""
+	;
 HELP	write:($get(globalName)="")!($get(globalName)="help") !,
 	" █▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█",!,
 	" █ ╔═════╦═╗  ╔═╦═════╗                                           █",!,
@@ -86,28 +95,28 @@ HELP	write:($get(globalName)="")!($get(globalName)="help") !,
 	" █   ╚═╝ ╚═╝  ╚═╩═╝ ╚═╝                                           █",!,
 	" █▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█",!,
 	"       do ^TMR(globalName,showKeys,showData,showLevels,amount)",!,
-	" ╔════════════════╦═══════════════════════════════════╦═══════════╗",!,
-	" ║ Parameter      ║ Description                       ║ Default   ║",!,
-	" ╠════════════════╩═══════════════════════════════════╩═══════════╣",!,
-	" ║ globalName     │ Global name in double quotes (""). │           ║",!,
-	" ║                │  Exemplo: ""^FTCL(50)""             │           ║",!,
-	" ║────────────────┼───────────────────────────────────┼───────────║",!,
-	" ║ showKeys       │ Show the key in each node.        │ 2         ║",!,
-	" ║                │  0 ─ Don't show the key           │           ║",!,
-	" ║                │  1 ─ Show complete key            │           ║",!,
-	" ║                │  2 ─ Show reduced key             │           ║",!,
-	" ║────────────────┼───────────────────────────────────┼───────────║",!,
-	" ║ showData       │ Show the content of the node.     │ 1         ║",!,
-	" ║                │  0 ─ Don't show the content       │           ║",!,
-	" ║                │  1 ─ Show the content             │           ║",!,
-	" ║────────────────┼───────────────────────────────────┼───────────║",!,
-	" ║ showLevels     │ Show the level of the node in the │ 0         ║",!,
-	" ║                │ tree                              │           ║",!,
-	" ║────────────────┼───────────────────────────────────┼───────────║",!,
-	" ║ amount         │ Show only the firts ""amout"" nodes.│ -1        ║",!,
-	" ║                │  amount < 0 : Show all            │           ║",!,
-	" ║                │                                   │           ║",!,
-	" ╚════════════════════════════════════════════════════════════════╝"
+	" ╔════════════════╦═══════════════════════════════════╦═════════╗",!,
+	" ║ Parameter      ║ Description                       ║ Default ║",!,
+	" ╠════════════════╩═══════════════════════════════════╩═════════╣",!,
+	" ║ globalName     │ Global name in double quotes (""). │         ║",!,
+	" ║                │  Exemplo: ""^FTCL(50)""             │         ║",!,
+	" ║────────────────┼───────────────────────────────────┼─────────║",!,
+	" ║ showKeys       │ Show the key in each node.        │ 2       ║ "_mostrarChaves_"",!,
+	" ║                │  0 ─ Don't show the key           │         ║",!,
+	" ║                │  1 ─ Show complete key            │         ║",!,
+	" ║                │  2 ─ Show reduced key             │         ║",!,
+	" ║────────────────┼───────────────────────────────────┼─────────║",!,
+	" ║ showData       │ Show the content of the node.     │ 1       ║ "_mostrarDados_"",!,
+	" ║                │  0 ─ Don't show the content       │         ║",!,
+	" ║                │  1 ─ Show the content             │         ║",!,
+	" ║────────────────┼───────────────────────────────────┼─────────║",!,
+	" ║ showLevels     │ Show the level of the node in the │ 0       ║ "_mostrarNiveis_"",!,
+	" ║                │ tree                              │         ║",!,
+	" ║────────────────┼───────────────────────────────────┼─────────║",!,
+	" ║ amount         │ Show only the firts ""amout"" nodes.│ -1      ║ "_amount_"",!,
+	" ║                │  amount < 0 : Show all            │         ║",!,
+	" ║                │                                   │         ║",!,
+	" ╚══════════════════════════════════════════════════════════════╝"
 	;
 	read !,"Screen width: ",screenWidth
 	;
@@ -117,8 +126,14 @@ INI	read:($get(globalName)="")!($get(globalName)="help") !,"Global ^",globalName
 	;
 	goto:($get(globalName)="help") HELP
 	;
-	set globalNotFound=($data(@globalName)=0)
-	set:globalNotFound globalName="^"_globalName
+	;
+	new invalidFormat 
+	set invalidFormat=(($extract(globalName,1)="^")&&($extract(globalName,2)="^"))
+	;
+	set:invalidFormat globalNotFound=1
+	set:'invalidFormat globalNotFound=($data(@globalName)=0)
+	;
+	set:(globalNotFound)&&($extract(globalName)'="^") globalName="^"_globalName
 	set:globalNotFound globalNotFound=($data(@globalName)=0)
 	;
 	write:globalNotFound !,
@@ -127,13 +142,6 @@ INI	read:($get(globalName)="")!($get(globalName)="help") !,"Global ^",globalName
 	"══════════════════════════════════════════════════════════════════",!
 	set:globalNotFound globalName=""
 	goto:globalNotFound INI
-	;
-	;---------------------
-	; Set parameters to default value if not specified
-	set:$get(mostrarChaves)="" mostrarChaves=2
-	set:$get(mostrarDados)="" mostrarDados=1
-	set:$get(mostrarNiveis)="" mostrarNiveis=0
-	set:$get(amount)="" amount=-1
 	;
 	new count,p,end,end0,node,levelFilter,level,level0,distance,value,completeKey,actualKey,indent,hasNext
 	new printedPointers
@@ -221,7 +229,7 @@ PrintLine(mostrarNiveis,mostrarChaves,mostrarDados,node,indent,end,level,value,c
 	set line=" "_indent_end_$$Repeat(1,"─")_ball
 	set:mostrarNiveis line=line_"<"_(level+1)_">"
 	set:mostrarChaves line=line_"("_$$RestoreSpecialCharacter($case(mostrarChaves,1:completeKey,2:actualKey))_")"
-	set:mostrarDados line=line_value
+	set:mostrarDados line=line_""""_value_""""
 	;
 	set:($length(line)>=screenWidth) line=$extract(line,1,screenWidth)_$select($length(line)>screenWidth:"...",1:"")
 	;
