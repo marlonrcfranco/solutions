@@ -74,12 +74,12 @@ TMR(globalName,mostrarChaves,mostrarDados,mostrarNiveis,amount)	;	MR - 15/08/201
 	; /*/
 	;**********************************************************************
 	;
-	new globalNoTFound
+	new globalNotFound
 	;
-	write:($get(globalName)="")!($get(globalName)="help") !,
+HELP	write:($get(globalName)="")!($get(globalName)="help") !,
 	"                   .:: Prints GLOBAL in TreeView ::.",!,
 	"              @MarlonFranco",!,
-	" do ^TMR(globalName,showKeys,showData,showLevels,amount)",!!,
+	" do ^TMR(globalName,showKeys,showData,showLevels,amount)",!,
 	" ╔════════════════╦═══════════════════════════════════╦═══════════╗",!,
 	" ║ Parameter      ║ Description                       ║ Default   ║",!,
 	" ╠════════════════╩═══════════════════════════════════╩═══════════╣",!,
@@ -103,17 +103,24 @@ TMR(globalName,mostrarChaves,mostrarDados,mostrarNiveis,amount)	;	MR - 15/08/201
 	" ║                │                                   │           ║",!,
 	" ╚════════════════════════════════════════════════════════════════╝"
 	;
-	quit:($get(globalName)="")!($get(globalName)="help")
+	;
+INI	read:($get(globalName)="")!($get(globalName)="help") !,"Global ^",globalName,!
+	;
+	quit:($get(globalName)="")!($get(globalName)="exit")!($get(globalName)="quit")
+	;
+	goto:($get(globalName)="help") HELP
 	;
 	set globalNotFound=($data(@globalName)=0)
+	set:globalNotFound globalName="^"_globalName
+	set:globalNotFound globalNotFound=($data(@globalName)=0)
 	;
 	write:globalNotFound !,
 	"══════════════════════════════════════════════════════════════════",!,
 	" ERRO: Nao foi possivel localizar a global """_globalName,"""",!,
 	"  Dica: coloque o nome da global entre aspas. Ex: ""^FTCL(50,1)""",!,
 	"══════════════════════════════════════════════════════════════════",!
-	quit:globalNotFound
-	kill globalNotFound
+	set:globalNotFound globalName=""
+	goto:globalNotFound INI
 	;
 	;---------------------
 	; Set parameters to default value if not specified
@@ -187,7 +194,8 @@ TMR(globalName,mostrarChaves,mostrarDados,mostrarNiveis,amount)	;	MR - 15/08/201
 	write !
 	;---------------------
 	; End
-	quit
+	set globalName=""
+	goto INI
 	;
 	;
 	;*************************************************
