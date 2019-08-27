@@ -1,0 +1,443 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2018.1.2 (Build 309U)" ts="2019-08-27 15:02:36">
+<Routine name="TMR" type="MAC" languagemode="0" timestamp="65252,54016.728976"><![CDATA[
+TMR(globalName,mostrarChaves,mostrarDados,mostrarNiveis,amount)	;	MR - 15/08/2019 - Prints Global in TreeView
+	;
+	;**********************************************************************
+	;                   .:: Prints GLOBAL in TreeView ::.
+	;              @MarlonFranco github.com/marlonrcfranco/solutions
+	; do ^TMR(globalName,showKeys,showData,showLevels,amount)
+	; 
+	; ╔════════════════╦═══════════════════════════════════╦═══════════╗
+	; ║ Parameter      ║ Description                       ║ Default   ║
+	; ╠════════════════╩═══════════════════════════════════╩═══════════╣
+	; ║ globalName     │ Global name in double quotes ("). │           ║
+	; ║                │  Exemplo: "^FTCL(50)"             │           ║
+	; ║────────────────┼───────────────────────────────────┼───────────║
+	; ║ showKeys       │ Show the key in each node.        │ 2         ║
+	; ║                │  0 ─ Don't show the key           │           ║
+	; ║                │  1 ─ Show complete key            │           ║
+	; ║                │  2 ─ Show reduced key             │           ║
+	; ║────────────────┼───────────────────────────────────┼───────────║
+	; ║ showData       │ Show the content of the node.     │ 1         ║
+	; ║                │  0 ─ Don't show the content       │           ║
+	; ║                │  1 ─ Show the content             │           ║
+	; ║────────────────┼───────────────────────────────────┼───────────║
+	; ║ showLevels     │ Show the level of the node in the │ 0         ║
+	; ║                │ tree                              │           ║
+	; ║────────────────┼───────────────────────────────────┼───────────║
+	; ║ amount         │ Show only the firts "amout" nodes.│ -1        ║
+	; ║                │  amount < 0 : Show all            │           ║
+	; ║                │                                   │           ║
+	; ╚════════════════════════════════════════════════════════════════╝
+	;
+	; MR - 22/08/2019
+	; 
+	; ╔═══════════════════╗
+	; ║   Usage Example   ║
+	; ╚═══════════════════╝
+	; 
+	; /* Example Global */
+	; set ^CITY("Brazil","SP","São Paulo")="example data"
+	; set ^CITY("Brazil","SP","Iguape")="example data"
+	; set ^CITY("Brazil","SC","Jaraguá do Sul")="example data"
+	; set ^CITY("Brazil","RS","Porto Alegre")="example data"
+	; set ^CITY("Italy","VE","Venice")="example data"
+	; set ^CITY("USA","IL","Chicago")="example data"
+	; set ^CITY("USA","NY","New York")="example data"
+	; 
+	; /* Prints the GLOBAL in TreeView */
+	; do ^TMR("^CITY")
+	; 
+	; /* Output: */
+	; 
+	; ^CITY
+	;  ├─×("Brazil")
+	;  │ ├─×("RS")
+	;  │ │ └─o("Porto Alegre")
+	;  │ ├─×("SC")
+	;  │ │ └─o("Jaraguá do Sul")
+	;  │ └─×("SP")
+	;  │   ├─o("Iguape")
+	;  │   └─o("São Paulo")
+	;  ├─×("Italy")
+	;  │ └─×("VE")
+	;  │   └─o("Venice")
+	;  └─×("USA")
+	;    ├─×("IL")
+	;    │ └─o("Chicago")
+	;    └─×("NY")
+	;      └─o("New York")
+	; 
+	; /* 
+	; /
+	; / The × represents nodes that don't contains data, but have children 
+	; / The o represents nodes that contains data and have children 
+	; / 
+	; /*/
+	;**********************************************************************
+	;
+	new globalNotFound,screenWidth
+	;
+HELP	write:($get(globalName)="")!($get(globalName)="help") !,
+	" █▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█",!,
+	" █ ╔═════╦═╗  ╔═╦═════╗                                           █",!,
+	" █ ╚═╗ ╔═╣  \/  ║ ╔═╗ ║   .:: Prints GLOBAL in TreeView ::.       █",!,
+	" █   ║ ║ ║ ║\/║ ║ ╚═╝ ║                                           █",!,
+	" █   ║ ║ ║ ║  ║ ║ ╔╗ ╔╝           @marlonrcfranco                 █",!,
+	" █   ║ ║ ║ ║  ║ ║ ║╚╗╚╗   github.com/marlonrcfranco/solutions     █",!,
+	" █   ╚═╝ ╚═╝  ╚═╩═╝ ╚═╝                                           █",!,
+	" █▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█",!,
+	"       do ^TMR(globalName,showKeys,showData,showLevels,amount)",!,
+	" ╔════════════════╦═══════════════════════════════════╦═══════════╗",!,
+	" ║ Parameter      ║ Description                       ║ Default   ║",!,
+	" ╠════════════════╩═══════════════════════════════════╩═══════════╣",!,
+	" ║ globalName     │ Global name in double quotes (""). │           ║",!,
+	" ║                │  Exemplo: ""^FTCL(50)""             │           ║",!,
+	" ║────────────────┼───────────────────────────────────┼───────────║",!,
+	" ║ showKeys       │ Show the key in each node.        │ 2         ║",!,
+	" ║                │  0 ─ Don't show the key           │           ║",!,
+	" ║                │  1 ─ Show complete key            │           ║",!,
+	" ║                │  2 ─ Show reduced key             │           ║",!,
+	" ║────────────────┼───────────────────────────────────┼───────────║",!,
+	" ║ showData       │ Show the content of the node.     │ 1         ║",!,
+	" ║                │  0 ─ Don't show the content       │           ║",!,
+	" ║                │  1 ─ Show the content             │           ║",!,
+	" ║────────────────┼───────────────────────────────────┼───────────║",!,
+	" ║ showLevels     │ Show the level of the node in the │ 0         ║",!,
+	" ║                │ tree                              │           ║",!,
+	" ║────────────────┼───────────────────────────────────┼───────────║",!,
+	" ║ amount         │ Show only the firts ""amout"" nodes.│ -1        ║",!,
+	" ║                │  amount < 0 : Show all            │           ║",!,
+	" ║                │                                   │           ║",!,
+	" ╚════════════════════════════════════════════════════════════════╝"
+	;
+	read !,"Screen width: ",screenWidth
+	;
+INI	read:($get(globalName)="")!($get(globalName)="help") !,"Global ^",globalName,!
+	;
+	quit:($get(globalName)="")!($get(globalName)="exit")!($get(globalName)="quit")
+	;
+	goto:($get(globalName)="help") HELP
+	;
+	set globalNotFound=($data(@globalName)=0)
+	set:globalNotFound globalName="^"_globalName
+	set:globalNotFound globalNotFound=($data(@globalName)=0)
+	;
+	write:globalNotFound !,
+	"══════════════════════════════════════════════════════════════════",!,
+	" ERROR: Couldn't find global """_globalName,"""",!,
+	"══════════════════════════════════════════════════════════════════",!
+	set:globalNotFound globalName=""
+	goto:globalNotFound INI
+	;
+	;---------------------
+	; Set parameters to default value if not specified
+	set:$get(mostrarChaves)="" mostrarChaves=2
+	set:$get(mostrarDados)="" mostrarDados=1
+	set:$get(mostrarNiveis)="" mostrarNiveis=0
+	set:$get(amount)="" amount=-1
+	;
+	new count,p,end,end0,node,levelFilter,level,level0,distance,value,completeKey,actualKey,indent,hasNext
+	new printedPointers
+	;
+	set p="│ ",count=0
+	;
+	set node=$query(@globalName)
+	set level=$length(node,",")-1
+	set level0=level
+	set levelFilter=$length(globalName,",")-1
+	set value=$get(@node)
+	set completeKey=$piece($piece(node,"(",2),")",1)
+	set completeKey=$$RemoveSpecialCharacter(completeKey,",")
+	set actualKey=$piece(completeKey,",",*)
+	set actualKey=$$RestoreSpecialCharacter(actualKey,",")
+	set indent=""
+	set hasNext=($order(@node)'="")
+	set end=$select(hasNext:"├",1:"└")
+	set end0=end
+	;
+	;---------------------
+	; First node
+	write !,globalName," ",$select(mostrarNiveis:"<"_(levelFilter)_">",1:"")
+	if (level>=levelFilter) do
+	. do:('$$ParentNodeExists(node)) PrintMissingNodes(mostrarChaves,mostrarDados,mostrarNiveis,amount,node,level,level0,value,completeKey,actualKey,.indent,hasNext,end,end0)
+	. do PrintLine(mostrarNiveis,mostrarChaves,mostrarDados,node,indent,end,level,value,completeKey,actualKey)
+	;
+	;---------------------
+	; Cycle through nodes
+	for  set node=$query(@node) quit:(node="")!(count=amount)!((level<=levelFilter)&&(levelFilter'=0))  do
+	. ;
+	. set level=$length(node,",")-1
+	. quit:(level<=levelFilter)&&(levelFilter'=0)
+	. set value=$get(@node)
+	. set completeKey=$piece($piece(node,"(",2),")",1)
+	. set completeKey=$$RemoveSpecialCharacter(completeKey,",")
+	. ;
+	. set actualKey=$piece(completeKey,",",*)
+	. set actualKey=$$RestoreSpecialCharacter(actualKey,",")
+	. ;
+	. set hasNext=($order(@node)'="")
+	. set end=$select(hasNext:"├",1:"└")
+	. ;
+	. ;---------------------
+	. ; Update indent
+	. ; 
+	. set:(level>level0)&&(end0="├") indent=indent_$$Repeat((level-level0),p)
+	. set:(level>level0)&&(end0'="├") indent=indent_$$Repeat((level-level0),"  ")
+	. set:(level<level0) indent=$$Remove(indent,p,(level0-level))
+	. ;
+	. ;---------------------
+	. ; Print line
+	. ; 
+	. do:('$$ParentNodeExists(node)) PrintMissingNodes(mostrarChaves,mostrarDados,mostrarNiveis,amount,node,level,level0,value,completeKey,actualKey,.indent,hasNext,end,end0)
+	. do PrintLine(mostrarNiveis,mostrarChaves,mostrarDados,node,indent,end,level,value,completeKey,actualKey)
+	. ;
+	. set count=count+1
+	. ;
+	. ;---------------------
+	. ; Update variables from previous level
+	. set:(level0'=level) level0=level
+	. set end0=end
+	. ;
+	write !
+	;---------------------
+	; End
+	set globalName=""
+	goto INI
+	;
+	;
+	;*************************************************
+	; Prints the line with one node from the tree
+	; MR - 23/08/2019
+	;*************************************************
+PrintLine(mostrarNiveis,mostrarChaves,mostrarDados,node,indent,end,level,value,completeKey,actualKey,pointer)	;
+	;
+	new ball,line
+	;
+	set:($get(screenWidth)="") screenWidth=70
+	;
+	set:$get(pointer)="" pointer=0
+	;
+	set ball=$select(pointer:"×",1:"o")
+	;
+	set line=" "_indent_end_$$Repeat(1,"─")_ball
+	set:mostrarNiveis line=line_"<"_(level+1)_">"
+	set:mostrarChaves line=line_"("_$$RestoreSpecialCharacter($case(mostrarChaves,1:completeKey,2:actualKey))_")"
+	set:mostrarDados line=line_value
+	;
+	set:($length(line)>=screenWidth) line=$extract(line,1,screenWidth)_$select($length(line)>screenWidth:"...",1:"")
+	;
+	write !,line
+	;
+	quit
+	;
+	;
+	;*************************************************
+	; Print all the nodes that are pointers (i.e. those that do not exists but have children)
+	; MR - 23/08/2019
+	;*************************************************
+PrintMissingNodes(mostrarChaves,mostrarDados,mostrarNiveis,distance,node,level,level0,value,completeKey,actualKey,indent,hasNext,end,end0)
+	;
+	new i,n,key,no,delim
+	;
+   	set delim=","
+ 	set indent=""
+ 	;
+   	set n=$length(completeKey,delim)
+  	;
+  	for i=1:1:n do
+   	. ;
+   	. set key=$piece(completeKey,delim,1,i)
+   	. ;
+   	. set actualKey=$piece(completeKey,delim,i)
+   	. ;
+   	. set no=$piece(node,"(",1)_"("_key_")"
+   	. ;
+   	. set level=$length(no,",")-1
+	. set value=""
+	. ;
+	. set hasNext=($order(@no)'="")
+	. set end=$select(hasNext:"├",1:"└")
+   	. ;
+   	. ;---------------------
+   	. ; Update indent
+   	. set:(level>level0)&&(end0="├") indent=indent_$$Repeat((level-level0),p)
+	. set:(level>level0)&&(end0'="├") indent=indent_$$Repeat((level-level0),"  ")
+	. set:(level<level0) indent=$$Remove(indent,p,(level0-level))
+	. ;
+	. if ($data(@no)=10)&&('$$PointerAlreadyPrinted(key)) do
+   	. . ;
+   	. . ;---------------------
+	. . ; Print line
+	. . ; 
+   	. . do PrintLine(mostrarNiveis,mostrarChaves,mostrarDados,node,indent,end,level,value,key,actualKey,1)
+   	. . set printedPointers(key)=""
+   	. . ;
+	. ;
+   	. ;---------------------
+   	. ; Update variables from previous level
+	. set:(level0'=level) level0=level
+	. set end0=end
+	;
+	quit
+	;
+	;
+	;*************************************************
+	; Returns 1 if the parent node exists
+	; MR - 23/08/2019
+	;*************************************************
+ParentNodeExists(node)	;
+	;
+	new completeKey,key,delim,n,parentNode,level
+	;
+	set delim=","
+	;
+	set completeKey=$piece($piece(node,"(",2),")",1)
+	set completeKey=$$RemoveSpecialCharacter(completeKey,delim)
+	;
+   	set n=$length(completeKey,delim)
+	;
+	set:(n-1)>0 key=$piece(completeKey,delim,1,n-1)
+	set:(n-1)<=0 key=0
+   	;
+   	set:key>0 parentNode=$piece(node,"(",1)_"("_$$RestoreSpecialCharacter(key,delim)_")"
+   	set:key<=0 parentNode=$piece(node,"(",1)
+	;
+	quit (($data(@parentNode)'=10)&&($data(@parentNode)'=0))
+	;
+	;
+	;*************************************************
+	; Returns 1 if the pointer has already been printed before
+	; MR - 23/08/2019
+	;*************************************************
+PointerAlreadyPrinted(pointerKey)	;
+	;
+	quit (($data(printedPointers(pointerKey))'=10)&&($data(printedPointers(pointerKey))'=0))
+	;
+	;
+	;*************************************************
+	; Returns the string with "n" times "ch"
+	; MR - 23/08/2019
+	;*************************************************
+Repeat(n,ch)	;
+	new i,string 
+	set string=""
+	;
+	set:(n>0)&&(n<1) n=1
+	set:(n<0) n=1
+	;
+	for i=1:1:n do
+	. ;
+	. set string=string_ch
+	. ;
+	quit string
+	;
+	;
+	;*************************************************
+	; Removes from "string" the "n" occurences of "ch"
+	; MR - 23/08/2019
+	;*************************************************
+Remove(string,ch,n)	;
+	new i
+	;
+	set:(n>0)&&(n<1) n=1
+	set:(n<0) n=0
+	;
+	for i=1:1:n do
+	. ;
+	. set string=$extract(string,1,($length(string)-$length(ch)))
+	. ;
+	;
+	quit string
+	;
+	;
+	;*************************************************
+	; Returns the distance between "n1" and "n2" in one dimension
+	; MR - 23/08/2019
+	;*************************************************
+Distance(n1,n2)	;
+	;
+	quit ($ZSQR($ZPOWER((n1-n2),2)))
+	;
+	;
+	;*************************************************
+	; RemoveSpecialCharacter
+	; 
+	; MR - 26/08/2019
+	;*************************************************
+	;
+	; Replace all the commas (or special character) that are not from the key,
+	; inside strings (i.e. between quotes)
+	; 
+	; Example: 
+	; 
+	;        1    2       3      4              5         6   7   8 
+	;       ├─┼────────┼────┼────────┼───────────────────┼─┼─────┼─┤
+	; key=   1,"Brasil","SP","Iguape","Rua do Centro,720",2,"End",7
+	; 
+	; In this example, the comma (,) is used to separate the values in the key, 
+	; but it is also present inside one of the values (the value 5).
+	; 
+	; If we attempt to do a $piece to separate the values using comma as delimiter, we get:
+	; 
+	; $piece(key,",",1): 1
+	; $piece(key,",",2): "Brasil"
+	; $piece(key,",",3): "SP"
+	; $piece(key,",",4): "Iguape"
+	; $piece(key,",",5): "Rua do Centro (INCORRECT)
+	; $piece(key,",",6): 720" (INCORRECT)
+	; $piece(key,",",7): 2
+	; $piece(key,",",8): "End"
+	; $piece(key,",",9): 7
+	; 
+	; -------
+	; Usage:
+	; 
+	; set key="1,""Brasil"",""SP"",""Iguape"",""Rua do Centro,720"",2,""End"",7"
+	;
+	; set key2=$$RemoveSpecialCharacter(key,",")
+	;
+	;for i=1:1:$length(key2,",") do
+	;. write $$RestoreSpecialCharacter($piece(key2,",",i)),!
+	; 
+RemoveSpecialCharacter(key,specialChar)
+	;
+	set:($data(specialChar)=0) specialChar=","
+	;
+	new ch,x,n,quotesOpen
+	;
+	set ch=""
+	set quotesOpen=0
+	;
+	set n= $length(key)
+	;
+	for x=1:1:n do
+	. set ch=$extract(key,x)
+	. ;
+	. if (ch="""") do
+	. . set quotesOpen='quotesOpen
+	. ;
+	. if (ch=specialChar)&&(quotesOpen) do 
+	. . set $extract(key,x)="•"
+	;
+	quit key
+	;
+	;
+	;*************************************************
+	; RestoreSpecialCharacter
+	; 
+	; MR - 26/08/2019
+	;*************************************************
+	;
+	; Replace all the "•" for specialChar
+RestoreSpecialCharacter(string,specialChar)
+	;
+	set:($data(specialChar)=0) specialChar=","
+	;
+	quit $replace(string,"•",specialChar)
+	;
+	;
+	;
+]]></Routine>
+</Export>
