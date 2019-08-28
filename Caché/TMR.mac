@@ -74,16 +74,13 @@ TMR(globalName,mostrarChaves,mostrarDados,mostrarNiveis,amount)	;	MR - 15/08/201
 	; /*/
 	;**********************************************************************
 	;
-	new globalNotFound,screenWidth
+	new globalNotFound,screenWidth,configured
+	;
+	set configured=0
 	;
 	;---------------------
 	; Set parameters to default value if not specified
-	set:$get(mostrarChaves)="" mostrarChaves=2
-	set:$get(mostrarDados)="" mostrarDados=1
-	set:$get(mostrarNiveis)="" mostrarNiveis=0
-	set:$get(amount)="" amount=-1
-	;
-	set:$get(globalName)?.N amount=$get(globalName),globalName=""
+	do SetParametersToDefault()
 	;
 HELP	write:($get(globalName)="")!($get(globalName)="help") !,
 	" █▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█",!,
@@ -117,28 +114,42 @@ HELP	write:($get(globalName)="")!($get(globalName)="help") !,
 	" ║                │  amount < 0 : Show all            │         ║",!,
 	" ╚══════════════════════════════════════════════════════════════╝",!
 	;
-	read !,"Screen width: ",screenWidth
+CONF	if ('configured) do
+	. read !,"Screen width: ",screenWidth
+	. write !,"showKeys? (actual "_mostrarChaves_"): "
+	. read mostrarChaves
+	. write !,"showData? (actual "_mostrarDados_"): "
+	. read mostrarDados
+	. write !,"showLevels? (actual "_mostrarNiveis_"): "
+	. read mostrarNiveis
+	. write !,"amount (actual -1):"
+	. read amount,!
+	. ;---------------------
+	. ; Set parameters to default value if not specified
+	. do SetParametersToDefault()
+	. ;
+	. set configured=1
 	;
-INI	read:($get(globalName)="")!($get(globalName)="help") !,"Global ^",globalName,!
+INI	read:($get(globalName)="")!($get(globalName)="help")!($get(globalName)="conf") !,"Global ^",globalName
 	;
 	quit:($get(globalName)="")!($get(globalName)="exit")!($get(globalName)="quit")
 	;
 	goto:($get(globalName)="help") HELP
 	;
+	set:($get(globalName)="conf") configured=0
+	goto:($get(globalName)="conf") CONF
 	;
 	new invalidFormat 
 	set invalidFormat=(($extract(globalName,1)="^")&&($extract(globalName,2)="^"))
 	;
-	set:invalidFormat globalNotFound=1
+	set globalNotFound=invalidFormat
+	;
+	if 'invalidFormat  do
+	. set:($extract(globalName)'="^") globalName="^"_globalName
+	;
 	set:'invalidFormat globalNotFound=($data(@globalName)=0)
 	;
-	set:(globalNotFound)&&($extract(globalName)'="^") globalName="^"_globalName
-	set:globalNotFound globalNotFound=($data(@globalName)=0)
-	;
-	write:globalNotFound !,
-	"══════════════════════════════════════════════════════════════════",!,
-	" ERROR: Couldn't find global """_globalName,"""",!,
-	"══════════════════════════════════════════════════════════════════",!
+	write:globalNotFound " [Global does not exist]",!
 	set:globalNotFound globalName=""
 	goto:globalNotFound INI
 	;
@@ -228,7 +239,7 @@ PrintLine(mostrarNiveis,mostrarChaves,mostrarDados,node,indent,end,level,value,c
 	set line=" "_indent_end_$$Repeat(1,"─")_ball
 	set:mostrarNiveis line=line_"<"_(level+1)_">"
 	set:mostrarChaves line=line_"("_$$RestoreSpecialCharacter($case(mostrarChaves,1:completeKey,2:actualKey))_")"
-	set:mostrarDados line=line_""""_value_""""
+	set:mostrarDados line=line_$select($get(value)'="":""""_value_"""",1:"")
 	;
 	set:($length(line)>=screenWidth) line=$extract(line,1,screenWidth)_$select($length(line)>screenWidth:"...",1:"")
 	;
@@ -441,5 +452,71 @@ RestoreSpecialCharacter(string,specialChar)
 	;
 	quit $replace(string,"•",specialChar)
 	;
+	;
+CreateTempGlobalForQuery(globalName)	;
+	;
+	new node
+	;
+	;
+	;
+	quit
+	;
+	;
+	;*************************************************
+	; Set parameters to default value if not specified
+	; MR - 28/08/2019
+	;*************************************************
+SetParametersToDefault()	;
+	;
+	set:$get(mostrarChaves)="" mostrarChaves=2
+	set:$get(mostrarDados)="" mostrarDados=1
+	set:$get(mostrarNiveis)="" mostrarNiveis=0
+	set:($get(amount)="")!($get(amount)=0) amount=-1
+	;
+	set:($get(globalName)'="")&&($get(globalName)?.N) amount=$get(globalName),globalName=""
+	;
+	quit
+	;
+	;
+Teste	;
+	new filter,globalName,level,completeKey,mtemp,noFilter
+	;
+	set ^A(1)=1
+	set ^A(1,1)=1
+	set ^A(1,2)=1
+	set ^A(2)=1
+	set ^A(2,1)=1
+	set ^A(2,1,1,1)=1
+	set ^A(2,1,2)=1
+	;
+	set globalName="^A(1)"
+	;
+LOOP	set mtemp="",noFilter=0
+	read !,"Global ^",filter
+	quit:(filter="quit")!(filter="")
+	;
+	set:($length(filter,"(")+$length(filter,")")-2)=0 mtemp="^"_filter,noFilter=1
+	goto:($length(filter,"(")+$length(filter,")")-2)=0 END
+	;
+	set level=$length(filter,",")
+	set level0=$length(filter,",")
+	;
+	set node=$query(@globalName)
+	;---------------------
+	; Cycle through nodes
+	for  set node=$query(@node) quit:(node="")  do
+	. ;
+	. set completeKey=$piece($piece(node,"(",2),")",1)
+	. ;
+	. if $piece(node,",",level)=$piece(filter,",",level) do
+	. . set mtemp="^mtempA("_completeKey_")"
+	. . set @mtemp=1
+	;
+END 	w !
+	zw:mtemp'="" @mtemp
+	;
+	kill:(mtemp'="")&&('noFilter) @mtemp
+	;
+	goto LOOP
 	;
 	;
