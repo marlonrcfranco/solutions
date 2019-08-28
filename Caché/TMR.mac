@@ -74,13 +74,14 @@ TMR(globalName,mostrarChaves,mostrarDados,mostrarNiveis,amount)	;	MR - 15/08/201
 	; /*/
 	;**********************************************************************
 	;
-	new globalNotFound,screenWidth,configured
+	new globalNotFound,screenWidth,isConfigured,isHelp,isConf,isEmpty,isExit
 	;
-	set configured=0
+	set (isConfigured,isHelp,isConf,isExit)=0
+	set isEmpty=($get(globalName)="")
 	;
 	;---------------------
 	; Set parameters to default value if not specified
-	do SetParametersToDefault()
+	do SetParametersToDefault(.mostrarChaves,.mostrarDados,.mostrarNiveis,.amount)
 	;
 HELP	write:($get(globalName)="")!($get(globalName)="help") !,
 	" █▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█",!,
@@ -114,7 +115,11 @@ HELP	write:($get(globalName)="")!($get(globalName)="help") !,
 	" ║                │  amount < 0 : Show all            │         ║",!,
 	" ╚══════════════════════════════════════════════════════════════╝",!
 	;
-CONF	if ('configured) do
+	;
+	;-------------------------------------------------
+	; Configuration panel
+	;
+CONF	if ('isConfigured) do
 	. read !,"Screen width: ",screenWidth
 	. write !,"showKeys? (actual "_mostrarChaves_"): "
 	. read mostrarChaves
@@ -126,37 +131,50 @@ CONF	if ('configured) do
 	. read amount,!
 	. ;---------------------
 	. ; Set parameters to default value if not specified
-	. do SetParametersToDefault()
+	. do SetParametersToDefault(.mostrarChaves,.mostrarDados,.mostrarNiveis,.amount)
 	. ;
-	. set configured=1
+	. set isConfigured=1
 	;
-INI	read:($get(globalName)="")!($get(globalName)="help")!($get(globalName)="conf") !,"Global ^",globalName
 	;
-	quit:($get(globalName)="")!($get(globalName)="exit")!($get(globalName)="quit")
+	;-------------------------------------------------
+	; Validates entry "globalName"
+	; 
+INI	read:(isEmpty!isHelp!isConf) !,"Global ^",globalName
+	set isEmpty=($get(globalName)="")
+	set isExit =($get(globalName)="exit")!($get(globalName)="quit")
+	set isHelp =($get(globalName)="help")
+	set isConf =($get(globalName)="conf")
 	;
-	goto:($get(globalName)="help") HELP
+	quit:isEmpty!isExit
 	;
-	set:($get(globalName)="conf") configured=0
-	goto:($get(globalName)="conf") CONF
+	goto:isHelp HELP
+	;
+	set:isConf isConfigured=0,globalName="",isEmpty=1
+	;
+	goto:isConf CONF
 	;
 	new invalidFormat 
 	set invalidFormat=(($extract(globalName,1)="^")&&($extract(globalName,2)="^"))
 	;
-	set globalNotFound=invalidFormat
+	set:('invalidFormat)&&($extract(globalName)'="^") globalName="^"_globalName
+	set:('invalidFormat)&&($extract(globalName,*)="(") $extract(globalName,*)=""
+	set:('invalidFormat) globalNotFound=($data(@globalName)=0)
+	set:( invalidFormat) globalNotFound=1
 	;
-	if 'invalidFormat  do
-	. set:($extract(globalName)'="^") globalName="^"_globalName
+	write:globalNotFound " [Global does not exist]"
+	write !
 	;
-	set:'invalidFormat globalNotFound=($data(@globalName)=0)
+	set:globalNotFound globalName="",isEmpty=1
 	;
-	write:globalNotFound " [Global does not exist]",!
-	set:globalNotFound globalName=""
-	goto:globalNotFound INI
+	goto:(globalNotFound)!(isEmpty) INI
+	;
+	;-------------------------------------------------
+	; Proceed if the global was found
 	;
 	new count,p,end,end0,node,levelFilter,level,level0,distance,value,completeKey,actualKey,indent,hasNext
 	new printedPointers
 	;
-	set p="│ ",count=0
+	set p="│ ",count=0	
 	;
 	set node=$query(@globalName)
 	set level=$length(node,",")-1
@@ -218,7 +236,7 @@ INI	read:($get(globalName)="")!($get(globalName)="help")!($get(globalName)="conf
 	write !
 	;---------------------
 	; End
-	set globalName=""
+	set globalName="",isEmpty=1
 	goto INI
 	;
 	;
@@ -453,20 +471,11 @@ RestoreSpecialCharacter(string,specialChar)
 	quit $replace(string,"•",specialChar)
 	;
 	;
-CreateTempGlobalForQuery(globalName)	;
-	;
-	new node
-	;
-	;
-	;
-	quit
-	;
-	;
 	;*************************************************
 	; Set parameters to default value if not specified
 	; MR - 28/08/2019
 	;*************************************************
-SetParametersToDefault()	;
+SetParametersToDefault(mostrarChaves,mostrarDados,mostrarNiveis,amount)	;
 	;
 	set:$get(mostrarChaves)="" mostrarChaves=2
 	set:$get(mostrarDados)="" mostrarDados=1
@@ -476,6 +485,29 @@ SetParametersToDefault()	;
 	set:($get(globalName)'="")&&($get(globalName)?.N) amount=$get(globalName),globalName=""
 	;
 	quit
+	;
+	;
+	;*************************************************
+	; Verify if the global name has double "^" or if 
+	; Also, if it has "(" as the last character, it will 
+	; be removed.
+	; 
+	; MR - 28/08/2019
+	;*************************************************
+VerifyGlobalNameFormat(globalName)	;
+	;
+	quit:($get(globalName)="") 1
+	;
+	new invalidFormat
+	;
+	set invalidFormat=(($extract(globalName,1)="^")&&($extract(globalName,2)="^"))
+	;
+	set:($extract(globalName)'="^") globalName="^"_globalName
+	set:($extract(globalName,*)="(") $extract(globalName,*)=""
+	;
+	quit invalidFormat
+	;
+	;
 	;
 	;
 Teste	;
